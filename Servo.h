@@ -69,6 +69,12 @@
 
 #define Servo_VERSION           2     // software version of this library
 
+#define MAX_SERVO_DEGREES (180)
+#define MIN_SERVO_DEGREES (0)
+
+#define MIN_SERVO_MILLISEC (1000)
+#define MAX_SERVO_MILLISEC (2000)
+
 #define MIN_PULSE_WIDTH       544     // the shortest pulse sent to a servo  
 #define MAX_PULSE_WIDTH      2400     // the longest pulse sent to a servo 
 #define DEFAULT_PULSE_WIDTH  1500     // default pulse width when servo is attached
@@ -98,13 +104,17 @@ public:
   void detach();
   void write(int value);             // if value is < 200 its treated as an angle, otherwise as pulse width in microseconds 
   void writeMicroseconds(int value); // Write pulse width in microseconds 
+  void writeDegrees(int deg);        // Write the servo position in degrees
   int read();                        // returns current pulse width as an angle between 0 and 180 degrees
   int readMicroseconds();            // returns current pulse width in microseconds for this servo (was read_us() in first release)
+  int readDegrees();                // returns the servo position in degrees
+  
   bool attached();                   // return true if this servo is attached, otherwise false 
 private:
    uint8_t servoIndex;               // index into the channel data for this servo
    int8_t min;                       // minimum is this value times 4 added to MIN_PULSE_WIDTH    
    int8_t max;                       // maximum is this value times 4 added to MAX_PULSE_WIDTH   
+   
 };
 
 #endif

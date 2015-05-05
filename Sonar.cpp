@@ -6,7 +6,12 @@
 #include "Servo.h"
 #include <Ultrasonic.h>
 
-void SonarClass::init(int servoPin, int echoPin, int trigPin)
+Sonar::Sonar()
+{
+	bzero((void*)rangeInchesAtDeg, sizeof(rangeInchesAtDeg));
+}
+
+void Sonar::init(int servoPin, int echoPin, int trigPin)
 {
 	_curAngle = 0;
 	// Create the servo and attach it to it's pin
@@ -14,12 +19,16 @@ void SonarClass::init(int servoPin, int echoPin, int trigPin)
 	servoPtr->attach(servoPin);
 	// Create the sensor and attach it to it's pin
 	sensorPtr = new Ultrasonic(trigPin,echoPin);
+	// Set default sweep limits
+	minSweepDeg = 90;
+	maxSweepDeg = 90;
+	numSweepDeg = 1;
 }
 
-void SonarClass::sweep()
+void Sonar::sweep()
 {
 	// Move to current Angle
-	servoPtr->writeMicroseconds(map(_curAngle, 0, NUM_DEGREES, ZERO_DEG_TO_MILLISEC, MAX_DEG_TO_MILLISEC));
+	servoPtr->writeDegrees(_curAngle);
 	
 	// Record range at current deg
 	long microsec = sensorPtr->timing();
@@ -31,12 +40,25 @@ void SonarClass::sweep()
 		Serial.print(" @ Deg:");
 		Serial.println(_curAngle);
 	}
-	if(++_curAngle > NUM_DEGREES)
+	if(++_curAngle > maxSweepDeg)
 	{
-		_curAngle = 0;
+		_curAngle = minSweepDeg;
 	}	
 }
 
+void Sonar::setSweepLimits(int minDeg, int maxDeg)
+{
+	maxSweepDeg = maxDeg;
+	minSweepDeg = minDeg;
+	numSweepDeg = maxDeg - minDeg + 1;
+}
 
-SonarClass Sonar;
+int Sonar::rangeInches(int angle)
+{
+	if(angle < minSweepDeg || angle > maxSweepDeg){
+		return -1;
+	}
+	return rangeInchesAtDeg[angle];
+}
+
 
